@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from . forms import *
 from django.contrib import messages
-from django.core.checks import messages
+# from django.core.checks import messages
 from django.forms.widgets import FileInput
 from django.views.generic import ListView, DetailView
 from youtubesearchpython import VideosSearch
@@ -141,4 +141,51 @@ def youtube(request):
 
 # view for todo
 def todo(request):
-    return render(request, 'app/todo.html')
+
+    if request.method == "POST":
+        form = TodoForm(request.POST)
+        if form.is_valid() == True:
+            try:
+                finished = request.POST['is_finished']
+                if finished == 'on':
+                    finished = True
+                else:
+                    finished =False
+            except:
+                finished = False
+            todos = Todo(
+                user = request.user,
+                title = request.POST['title'], 
+                 is_finished = finished
+            )  
+            todos.save()
+            messages.success(request, f"Todos Added from {request.user.username}!!!!!")    
+    else: 
+        form = TodoForm()
+    todo = Todo.objects.filter(user=request.user)
+
+    if len(todo) == 0:
+        todos_done = True
+    else:
+        todos_done = False
+
+    context = { 'todos': todo, 'form':form, 'todos_done': todos_done}
+    return render(request, 'app/todo.html', context)
+
+
+# update todo
+def update_todo(request, pk=None):
+    todo = Todo.objects.get(id=pk)
+
+    if todo.is_finished == True:
+        todo.is_finished = False
+    else:
+        todo.is_finished = True
+    todo.save()
+    return redirect('todo')
+
+
+# delete todo
+def delete_todo(reuest, pk=None):
+    Todo.objects.get(id=pk).delete()
+    return redirect("todo")

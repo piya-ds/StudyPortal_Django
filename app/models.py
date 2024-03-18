@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
+
+# model for Notes
 class Notes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=200, unique=True)
@@ -18,6 +20,7 @@ class Notes(models.Model):
         verbose_name_plural = "notes"
 
 
+# model for Homework
 class Homework(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -32,4 +35,15 @@ class Homework(models.Model):
     def __str__(self):
         return self.title
 
-    
+
+
+# model for todo
+class Todo(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    created_on = models.DateTimeField(auto_now_add=True)
+    # due = models.DateTimeField()
+    is_finished = models.BooleanField(default = False)
+
+    def __str__(self):
+        return self.title

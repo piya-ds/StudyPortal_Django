@@ -23,4 +23,6 @@ urlpatterns = [
     path('',include('app.urls')),
     path('notes/',include('app.urls')),
     path('homework/',include('app.urls')),
+    path('youtube/',include('app.urls')),
+    path('todo/',include('app.urls')),
 ]
