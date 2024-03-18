@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
 from . forms import *
 from django.contrib import messages
+from django.core.checks import messages
+from django.forms.widgets import FileInput
 from django.views.generic import ListView, DetailView
+from youtubesearchpython import VideosSearch
 
 from . models import Notes,Homework
 
@@ -103,7 +106,39 @@ def youtube(request):
     if request.method == 'POST':
         form = AppForm(request.POST)
         text = request.POST['text']
+        video = VideosSearch(text, limit = 10)
+        # print(video.result(), len(video.result()))
+        result_list = []
+
+        for i in video.result()['result']:
+            result_dict = {
+                'input':text,
+                'title':i['title'],
+                'duration':i['duration'],
+                'thumbnail':i['thumbnails'][0]['url'],
+                'channel':i['channel']['name'],
+                'link':i['link'],
+                'views':i['viewCount']['short'],
+                'published':i['publishedTime']
+            }
+            desc = ''
+            if i['descriptionSnippet']:
+                for j in i['descriptionSnippet']:
+                    desc += j['text']
+            result_dict['description'] = desc
+            # print(i)
+            result_list.append(result_dict)
+            # print(len(result_list))
+            context = {'form':form, 'results':result_list}
+
+        return render(request, 'app/youtube.html', context)
+
     else:
         form = AppForm()
     context = { 'form': form}
     return render(request, 'app/youtube.html', context)
+
+
+# view for todo
+def todo(request):
+    return render(request, 'app/todo.html')
