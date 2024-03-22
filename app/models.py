@@ -47,3 +47,18 @@ class Todo(models.Model):
 
     def __str__(self):
         return self.title
+
+# models for books/articals
+class Books(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    link = models.CharField(max_length=200)
+    created_on = models.DateTimeField(auto_now_add=True)
+    # due = models.DateTimeField()
+    is_finished = models.BooleanField(default = False)
+
+    def __str__(self):
+        return self.title
+
+    
+    

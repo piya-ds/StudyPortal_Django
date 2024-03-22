@@ -189,3 +189,90 @@ def update_todo(request, pk=None):
 def delete_todo(reuest, pk=None):
     Todo.objects.get(id=pk).delete()
     return redirect("todo")
+
+
+# Books view
+def books(request):
+
+    if request.method == "POST":
+        form = TodoForm(request.POST)
+        if form.is_valid() == True:
+            try:
+                finished = request.POST['is_finished']
+                if finished == 'on':
+                    finished = True
+                else:
+                    finished =False
+            except:
+                finished = False
+            books = Books(
+                user = request.user,
+                title = request.POST['title'], 
+                link = request.POST['link'],
+                 is_finished = finished
+            )  
+            books.save()
+            messages.success(request, f"e-Books/Articals Added from {request.user.username}!!!!!")    
+    else: 
+        form = BooksForm()
+    book = Books.objects.filter(user=request.user)
+
+    if len(book) == 0:
+        done = True
+    else:
+        done = False
+
+    context = { 'books': book, 'form':form, 'done': done}
+    return render(request, 'app/books.html', context)
+
+
+# update book status
+def update_book(request, pk=None):
+    book = Books.objects.get(id=pk)
+
+    if book.is_finished == True:
+        book.is_finished = False
+    else:
+        book.is_finished = True
+    book.save()
+    return redirect('books') 
+
+# delete book
+def delete_book(reuest, pk=None):
+    Books.objects.get(id=pk).delete()
+    return redirect("books")
+
+
+# user registration
+def register(request):
+
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request,f"Account Added Successfully!!!")
+            return redirect('login')
+    else:
+
+        form = UserRegistrationForm()
+    context = {'form': form}
+    return render(request, 'app/register.html',context)
+
+
+# user profile
+
+def profile(request):
+    homeworks = Homework.objects.filter(is_finished = False,user = request.user)
+    todos = Todo.objects.filter(is_finished = False,user = request.user)
+
+    if len(homeworks) == 0:
+        hw_done = True
+    else:
+        hw_done =False
+    if len(todos) == 0:
+        td_done = True
+    else:
+        td_done =False
+    context ={ 'homeworks':homeworks, 'todos':todos, 'hw_done': hw_done, 'td_done': td_done}
+    return render(request,'app/profile.html', context)
