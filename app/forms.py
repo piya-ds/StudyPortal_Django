@@ -44,5 +44,5 @@ class BooksForm(forms.ModelForm):
 # UserRegistration form
 class UserRegistrationForm(UserCreationForm):
     class Meta:
-        model: User
-        fields: ['username','password1','password2']
+        model= User
+        fields= ['username','password1','password2']

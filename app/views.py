@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.forms.widgets import FileInput
 from django.views.generic import ListView, DetailView
 from youtubesearchpython import VideosSearch
+from django.contrib.auth.decorators import login_required
 
 from . models import Notes,Homework
 
@@ -14,6 +15,7 @@ def home(request):
     return render(request,'app/home.html')
 
 # Notes View 
+@login_required
 def notes(request):
 
     if request.method == "POST":
@@ -32,15 +34,23 @@ def notes(request):
 
 
 # delete note view
+@login_required
 def delete_note(reuest, pk=None):
     Notes.objects.get(id=pk).delete()
     return redirect("notes")
+
+
+
 
 # detail view of specified notes
 class NoteDetailView(DetailView):
     model = Notes
 
+
+
+
 # Homework view
+@login_required
 def homework(request):
 
     homework_done = False
@@ -81,8 +91,11 @@ def homework(request):
 
     context = {'homeworks' : homework, "homeworks_done" : homework_done, 'form': form}
     return render(request,'app/homework.html', context)
-    
+
+
+
 # upadte specific homework 
+@login_required
 def update_homework(request, pk=None):
     homework = Homework.objects.get(id=pk)
 
@@ -94,7 +107,10 @@ def update_homework(request, pk=None):
     return redirect('homework')
 
 
+
+
 # detete specific homework
+@login_required
 def delete_homework(reuest, pk=None):
     Homework.objects.get(id=pk).delete()
     return redirect("homework")
@@ -139,7 +155,11 @@ def youtube(request):
     return render(request, 'app/youtube.html', context)
 
 
+
+
+
 # view for todo
+@login_required
 def todo(request):
 
     if request.method == "POST":
@@ -173,7 +193,11 @@ def todo(request):
     return render(request, 'app/todo.html', context)
 
 
+
+
+
 # update todo
+@login_required
 def update_todo(request, pk=None):
     todo = Todo.objects.get(id=pk)
 
@@ -185,13 +209,21 @@ def update_todo(request, pk=None):
     return redirect('todo')
 
 
+
+
+
 # delete todo
+@login_required
 def delete_todo(reuest, pk=None):
     Todo.objects.get(id=pk).delete()
     return redirect("todo")
 
 
+
+
+
 # Books view
+@login_required
 def books(request):
 
     if request.method == "POST":
@@ -226,7 +258,10 @@ def books(request):
     return render(request, 'app/books.html', context)
 
 
+
+
 # update book status
+@login_required
 def update_book(request, pk=None):
     book = Books.objects.get(id=pk)
 
@@ -237,7 +272,11 @@ def update_book(request, pk=None):
     book.save()
     return redirect('books') 
 
+
+
+
 # delete book
+@login_required
 def delete_book(reuest, pk=None):
     Books.objects.get(id=pk).delete()
     return redirect("books")
@@ -251,17 +290,18 @@ def register(request):
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
-            messages.success(request,f"Account Added Successfully!!!")
+            messages.success(request,f"Account Added Successfully for {username}!!!")
             return redirect('login')
     else:
-
         form = UserRegistrationForm()
     context = {'form': form}
     return render(request, 'app/register.html',context)
 
 
-# user profile
 
+
+# user profile
+@login_required
 def profile(request):
     homeworks = Homework.objects.filter(is_finished = False,user = request.user)
     todos = Todo.objects.filter(is_finished = False,user = request.user)
